@@ -1,0 +1,79 @@
+import java.util.*;
+
+public class Main {
+   
+    enum NodeState {
+        UNVISITED,
+        VISITING,
+        VISITED
+    }
+
+    private final Map<String, List<String>> adjacencyList;
+
+    public Main() {
+        this.adjacencyList = new HashMap<>();
+    }
+
+    public void addLink(String sourceRouter, String destinationRouter) {
+        this.adjacencyList.putIfAbsent(sourceRouter, new ArrayList<>());
+        this.adjacencyList.putIfAbsent(destinationRouter, new ArrayList<>());
+        this.adjacencyList.get(sourceRouter).add(destinationRouter);
+    }
+
+    public boolean hasRoutingLoop() {
+        Map<String, NodeState> stateMap = new HashMap<>();
+        for (String router : adjacencyList.keySet()) {
+            stateMap.put(router, NodeState.UNVISITED);
+        }
+
+        for (String router : adjacencyList.keySet()) {
+            if (stateMap.get(router) == NodeState.UNVISITED) {
+                if (dfsCheckCycle(router, stateMap)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean dfsCheckCycle(String currentRouter, Map<String, NodeState> stateMap) {
+        stateMap.put(currentRouter, NodeState.VISITING);
+
+        List<String> neighbors = adjacencyList.getOrDefault(currentRouter, new ArrayList<>());
+        for (String neighbor : neighbors) {
+            NodeState neighborState = stateMap.getOrDefault(neighbor, NodeState.UNVISITED);
+
+            if (neighborState == NodeState.VISITING) {
+                System.out.println("⚠️ Loop Detected! Backlink found from " + currentRouter + " -> " + neighbor);
+                return true;
+            }
+
+            if (neighborState == NodeState.UNVISITED) {
+                if (dfsCheckCycle(neighbor, stateMap)) {
+                    return true;
+                }
+            }
+        }
+
+        stateMap.put(currentRouter, NodeState.VISITED);
+        return false;
+    }
+
+    public static void main(String[] args) {
+        Main network = new Main();
+
+        network.addLink("Router_A", "Router_B");
+        network.addLink("Router_B", "Router_C");
+        network.addLink("Router_C", "Router_D");
+        network.addLink("Router_D", "Router_B");
+        network.addLink("Router_C", "Router_E");
+
+        System.out.println("Analyzing network topology for routing loops...");
+       
+        if (network.hasRoutingLoop()) {
+            System.out.println("❌ Network Alert: Malformed topology! Cycle detected.");
+        } else {
+            System.out.println("✅ Network Stable: No cycles detected.");
+        }
+    }
+}
