@@ -44,7 +44,7 @@ public class Main {
             NodeState neighborState = stateMap.getOrDefault(neighbor, NodeState.UNVISITED);
 
             if (neighborState == NodeState.VISITING) {
-                System.out.println("⚠️ Loop Detected! Backlink found from " + currentRouter + " -> " + neighbor);
+                System.out.println("\n Loop Detected! Backlink found from " + currentRouter + " -> " + neighbor);
                 return true;
             }
 
@@ -61,19 +61,46 @@ public class Main {
 
     public static void main(String[] args) {
         Main network = new Main();
+      
+        Scanner scanner = new Scanner(System.in);
 
-        network.addLink("Router_A", "Router_B");
-        network.addLink("Router_B", "Router_C");
-        network.addLink("Router_C", "Router_D");
-        network.addLink("Router_D", "Router_B");
-        network.addLink("Router_C", "Router_E");
+        System.out.println("=== Network Loop Detector ===");
+        
+       
+        int totalLinks = 0;
+        while (true) {
+            System.out.print("Enter the total number of network links to add: ");
+            if (scanner.hasNextInt()) {
+                totalLinks = scanner.nextInt();
+                if (totalLinks >= 0) break;
+                System.out.println("Please enter a positive number.");
+            } else {
+                System.out.println("Invalid input. Please enter an integer.");
+                scanner.next(); // Clear invalid token
+            }
+        }
 
-        System.out.println("Analyzing network topology for routing loops...");
+       
+        for (int i = 1; i <= totalLinks; i++) {
+            System.out.println("\n--- Link " + i + " ---");
+            System.out.print("Enter Source Router Name (e.g., Router_A): ");
+            String source = scanner.next();
+            
+            System.out.print("Enter Destination Router Name (e.g., Router_B): ");
+            String destination = scanner.next();
+            
+            network.addLink(source, destination);
+        }
+
+        scanner.close();
+
+       
+        System.out.println("\nAnalyzing network topology for routing loops...");
        
         if (network.hasRoutingLoop()) {
-            System.out.println("❌ Network Alert: Malformed topology! Cycle detected.");
+            System.out.println(" Network Alert: Malformed topology! Cycle detected.");
         } else {
-            System.out.println("✅ Network Stable: No cycles detected.");
+            System.out.println(" Network Stable: No cycles detected.");
         }
     }
 }
