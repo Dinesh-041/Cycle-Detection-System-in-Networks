@@ -1,0 +1,3 @@
+Analyzing network topology for routing loops...
+⚠️ Loop Detected! Backlink found from Router_B -> Router_C
+❌ Network Alert: Malformed topology! Cycle detected.
